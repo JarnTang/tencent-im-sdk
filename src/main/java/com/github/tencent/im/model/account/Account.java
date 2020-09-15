@@ -1,5 +1,6 @@
 package com.github.tencent.im.model.account;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -12,7 +13,10 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class Account {
+    @JsonProperty("Identifier")
     private String id;
+    @JsonProperty("Nick")
     private String nickName;
+    @JsonProperty("FaceUrl")
     private String faceUrl;
 }

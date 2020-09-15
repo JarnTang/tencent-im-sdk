@@ -1,7 +1,6 @@
 package com.github.tencent.im;
 
 import com.github.tencent.util.JsonUtil;
-import jdk.internal.joptsimple.internal.Strings;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.Mac;
@@ -68,10 +67,11 @@ public class TencentImSignSdk {
     }
 
     private String hmacsha256(String identifier, long currTime, long expire, String base64UserBuf) {
-        String beSignedContent = "TLS.identifier:" + identifier + Strings.LINE_SEPARATOR +
-                "TLS.sdkappid:" + appId + Strings.LINE_SEPARATOR +
-                "TLS.time:" + currTime + Strings.LINE_SEPARATOR +
-                "TLS.expire:" + expire + Strings.LINE_SEPARATOR;
+        String LINE_SEPARATOR = System.lineSeparator();
+        String beSignedContent = "TLS.identifier:" + identifier + LINE_SEPARATOR +
+                "TLS.sdkappid:" + appId + LINE_SEPARATOR +
+                "TLS.time:" + currTime + LINE_SEPARATOR +
+                "TLS.expire:" + expire + LINE_SEPARATOR;
         if (null != base64UserBuf) {
             beSignedContent += "TLS.userbuf:" + base64UserBuf + "\n";
         }

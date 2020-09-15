@@ -1,6 +1,7 @@
 package com.github.tencent.im;
 
 import com.github.tencent.im.constant.ApiNames;
+import com.github.tencent.im.model.KvEntity;
 import com.github.tencent.im.model.account.Account;
 import com.github.tencent.im.model.account.ImportResponse;
 import com.github.tencent.im.model.profile.Profile;
@@ -10,8 +11,7 @@ import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * tencent cloud im sdk.
@@ -46,23 +46,37 @@ public class TencentImSdk {
     }
 
     public ProfileResponse updateProfile(Profile profile) throws IOException {
-        return createRequest(ApiNames.UPDATE_PROFILE, profile, ProfileResponse.class);
+        String json = JsonUtil.toJson(profile);
+        Map<?, ?> map = JsonUtil.parseObject(json, HashMap.class);
+        map.remove("From_Account");
+
+        Map<String, Object> requestData = new HashMap<>();
+        List<KvEntity> kvEntityList = new ArrayList<>();
+        requestData.put("From_Account", profile.getAccountId());
+        requestData.put("ProfileItem", kvEntityList);
+        for (Object key : map.keySet()) {
+            Object value = map.get(key);
+            kvEntityList.add(new KvEntity((String) key, value));
+        }
+        return createRequest(ApiNames.UPDATE_PROFILE, requestData, ProfileResponse.class);
     }
 
     @NotNull
     private <T> T createRequest(String apiName, Object params, Class<T> clazz) throws IOException {
         String url = buildRequestUrl(apiName);
         String paramJson = JsonUtil.toJson(params);
+        System.out.println("参数：" + paramJson);
         RequestBody requestBody = RequestBody.create(paramJson, JSON);
         Request request = new Request.Builder().url(url).post(requestBody).build();
         try (Response response = httpClient.newCall(request).execute()) {
             String responseJson = Objects.requireNonNull(response.body()).string();
+            System.out.println("原始结果:" + responseJson);
             return JsonUtil.parseObject(responseJson, clazz);
         }
     }
 
     private String buildRequestUrl(String apiName) {
-        int random = (int) System.currentTimeMillis() / 1000;
+        int random = (int) (System.currentTimeMillis() / 1000);
         String sign = imSignSdk.genSign(adminUserId, EXPIRE);
         String uri = String.format("?sdkappid=%s&identifier=%s&usersig=%s&random=%s&contenttype=json",
                 appId, adminUserId, sign, random);
