@@ -49,16 +49,30 @@ public class TencentImSdk {
         String json = JsonUtil.toJson(profile);
         Map<?, ?> map = JsonUtil.parseObject(json, HashMap.class);
         map.remove("From_Account");
+        map.remove("customData");
 
         Map<String, Object> requestData = new HashMap<>();
         List<KvEntity> kvEntityList = new ArrayList<>();
         requestData.put("From_Account", profile.getAccountId());
         requestData.put("ProfileItem", kvEntityList);
+
         for (Object key : map.keySet()) {
             Object value = map.get(key);
             kvEntityList.add(new KvEntity((String) key, value));
         }
+        fillCustomData(profile, kvEntityList);
         return createRequest(ApiNames.UPDATE_PROFILE, requestData, ProfileResponse.class);
+    }
+
+    private void fillCustomData(Profile profile, List<KvEntity> kvEntityList) {
+        if (profile.getCustomData() == null) {
+            return;
+        }
+        for (KvEntity entity : profile.getCustomData()) {
+            if (entity != null) {
+                kvEntityList.add(entity);
+            }
+        }
     }
 
     @NotNull

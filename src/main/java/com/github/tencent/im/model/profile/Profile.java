@@ -8,6 +8,7 @@ import com.github.tencent.im.enums.MsgSetting;
 import com.github.tencent.im.model.KvEntity;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -51,4 +52,11 @@ public class Profile {
      * @see <a href="https://cloud.tencent.com/document/product/269/1500#.E8.B5.84.E6.96.99.E5.AD.97.E6.AE.B5">腾讯官方文档链接</a>
      */
     private List<KvEntity> customData;
+
+    public void addCustomData(KvEntity data) {
+        if (customData == null) {
+            customData = new ArrayList<>();
+        }
+        customData.add(data);
+    }
 }
