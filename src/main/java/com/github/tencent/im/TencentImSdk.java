@@ -7,6 +7,7 @@ import com.github.tencent.im.model.account.ImportResponse;
 import com.github.tencent.im.model.profile.Profile;
 import com.github.tencent.im.model.profile.ProfileResponse;
 import com.github.tencent.util.JsonUtil;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,6 +20,7 @@ import java.util.*;
  * @author changjiangtang
  * @since 2020-09-15 11:02:09
  */
+@Slf4j
 public class TencentImSdk {
     private final Long appId;
     private final String appSecret;
@@ -28,7 +30,7 @@ public class TencentImSdk {
     private static final int EXPIRE = 60 * 60 * 2;
     private final OkHttpClient httpClient = new OkHttpClient();
     private final static String TENCENT_DOMAIN = "https://console.tim.qq.com/";
-    public static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
+    public static final MediaType JSON_MEDIA_TYPE = MediaType.get("application/json; charset=utf-8");
 
     public TencentImSdk(Long appId, String appSecret, String adminUserId) {
         this.appId = appId;
@@ -79,12 +81,12 @@ public class TencentImSdk {
     private <T> T createRequest(String apiName, Object params, Class<T> clazz) throws IOException {
         String url = buildRequestUrl(apiName);
         String paramJson = JsonUtil.toJson(params);
-        System.out.println("参数：" + paramJson);
-        RequestBody requestBody = RequestBody.create(paramJson, JSON);
+        log.debug("----> request :  {}", paramJson);
+        RequestBody requestBody = RequestBody.create(paramJson, JSON_MEDIA_TYPE);
         Request request = new Request.Builder().url(url).post(requestBody).build();
         try (Response response = httpClient.newCall(request).execute()) {
             String responseJson = Objects.requireNonNull(response.body()).string();
-            System.out.println("原始结果:" + responseJson);
+            log.debug("----> response :  {}", responseJson);
             return JsonUtil.parseObject(responseJson, clazz);
         }
     }
